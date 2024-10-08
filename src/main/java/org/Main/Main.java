@@ -7,7 +7,7 @@ public class Main {
 
         ConversorAPdf conversor = new ConversorAPdf();
 
-        //conversor.convertir();
+        conversor.convertir();
         conversor.combinar();
     }
 }
