@@ -17,7 +17,7 @@ import java.io.IOException;
 public class ConversorAPdf {
     public void combinar(String[] archivos, String pdfOutput){
 
-        // Crear un JFileChooser para seleccionar los archivos PDF
+        // Crear un JFileChooser para seleccionar los archivos PDF jjj
         /*JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Selecciona archivos PDF");
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos PDF", "pdf"));
