@@ -15,6 +15,16 @@
     </properties>
 
         <dependencies>
+            <!--<dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>bouncy-castle-fips-adapter</artifactId>
+                <version>8.0.5</version>
+            </dependency>-->
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>bouncy-castle-adapter</artifactId>
+                <version>8.0.5</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/com.itextpdf/itext-core -->
             <dependency>
                 <groupId>com.itextpdf</groupId>
@@ -22,15 +32,51 @@
                 <version>8.0.5</version>
                 <type>pom</type>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.itextpdf/sign -->
             <dependency>
                 <groupId>com.itextpdf</groupId>
-                <artifactId>html2pdf</artifactId>
-                <version>5.0.5</version>
+                <artifactId>sign</artifactId>
+                <version>8.0.5</version>
             </dependency>
             <dependency>
                 <groupId>com.itextpdf</groupId>
                 <artifactId>kernel</artifactId>
                 <version>8.0.5</version>
             </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>layout</artifactId>
+                <version>8.0.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>forms</artifactId>
+                <version>8.0.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>html2pdf</artifactId>
+                <version>5.0.5</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.itextpdf/bouncy-castle-adapter -->
+
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.78.1</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.16</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>io</artifactId>
+                <version>8.0.5</version>
+            </dependency>
+
         </dependencies>
 </project>
