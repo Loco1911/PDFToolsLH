@@ -43,8 +43,8 @@ public class Main {
     }*/
         try {
             // Ruta del archivo PDF original
-            String pdfPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\output_combinado.pdf";
-            String imagePath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\firma.jpeg";
+            String pdfPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\ejmet.pdf";
+            String imagePath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\firma3.png";
 
             // 1. Agregar las líneas de firma al PDF
             String outputPdfWithLines = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\output_new.pdf";

@@ -1,26 +1,28 @@
 package Firmar;
 
-import com.itextpdf.io.exceptions.IOException;
+import com.itextpdf.forms.form.element.SignatureFieldAppearance;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.signatures.*;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.Certificate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SignerHelper {
+    private static final Logger logger = Logger.getLogger(SignerHelper.class.getName());
 
-    public static void agregarLineas(String pdfPath, String outputPdfPath) throws FileNotFoundException {
+    private static Rectangle fourthRectPosition;
+
+    public static void agregarLineas(String pdfPath, String outputPdfPath) {
         try (PdfReader reader = new PdfReader(pdfPath);
              PdfWriter writer = new PdfWriter(outputPdfPath);
              PdfDocument pdfDoc = new PdfDocument(reader, writer)) {
@@ -42,11 +44,15 @@ public class SignerHelper {
                 canvas.lineTo(xPosition + lineWidth, yPosition);
                 canvas.setStrokeColorRgb(0, 0, 0);
                 canvas.stroke();
+
+                if (i == 3) {
+                    fourthRectPosition = new Rectangle(xPosition, yPosition + espacioEntreLineas, lineWidth, -50);
+                }
             }
 
             System.out.println("Líneas agregadas exitosamente al PDF.");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al agregar líneas al PDF", e);
         }
     }
 
@@ -61,48 +67,44 @@ public class SignerHelper {
             PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, password.toCharArray());
             Certificate[] chain = keyStore.getCertificateChain(alias);
 
-            // Crear PdfReader y PdfWriter por separado
             try (PdfReader reader = new PdfReader(pdfPath);
-                 PdfWriter writer = new PdfWriter(outputPdfPath);
-                 PdfDocument pdfDocument = new PdfDocument(reader, writer)) {
+                 PdfWriter writer = new PdfWriter(outputPdfPath)) {
 
                 // Crear PdfSigner
-                StampingProperties stampingProperties = new StampingProperties();
-                PdfSigner signer = new PdfSigner(reader, writer, stampingProperties);
+                PdfSigner pdfSigner = new PdfSigner(reader, writer, new StampingProperties());
 
                 // Obtener el número total de páginas
-                int totalPages = pdfDocument.getNumberOfPages();
+                int totalPages = pdfSigner.getDocument().getNumberOfPages();
 
-                // Definir el área de la firma en la última página
-                Rectangle rect = new Rectangle(36, 480, 200, 100);
-                PdfSignatureAppearance appearance = signer.getSignatureAppearance();
-                appearance.setReuseAppearance(false)
-                        .setPageRect(rect)
-                        .setPageNumber(totalPages)
-                        .setImageScale(-1); // Ajustar la escala de la imagen
-
-                // Establecer parámetros que no se mostrarán en el PDF
-                appearance.setLocation(" ");
-                appearance.setReason(" ");
-                appearance.setContact(" ");
+                // Usar la posición del cuarto rectángulo a partir del método agregarLineas
+                if (fourthRectPosition == null) {
+                    throw new IllegalStateException("La posición del cuarto rectángulo no fue determinada.");
+                }
+                Rectangle rect = new Rectangle(fourthRectPosition.getX(),
+                        fourthRectPosition.getY() + fourthRectPosition.getHeight(),
+                        fourthRectPosition.getWidth(),
+                        100);
+                pdfSigner.setLocation(" ").setReason("").setPageRect(rect).setPageNumber(totalPages).setContact(" ");
 
                 // Cargar la imagen de la firma
                 BufferedImage image = ImageIO.read(new File(imagePath));
                 ImageData imageData = ImageDataFactory.create(image, null);
-                appearance.setImage(imageData);
-                appearance .setLayer2Text("Firma digital");
+
+                // Usar SignatureFieldAppearance para establecer el texto de la firma
+                SignatureFieldAppearance signatureFieldAppearance = new SignatureFieldAppearance("firma");
+                signatureFieldAppearance.setContent(imageData);
+                pdfSigner.setSignatureAppearance(signatureFieldAppearance);
 
                 // Firmar el PDF
                 Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
                 IExternalSignature pks = new PrivateKeySignature(privateKey, DigestAlgorithms.SHA256, "BC");
                 IExternalDigest digest = new BouncyCastleDigest();
-                //signer.setExternalDigest(new BouncyCastleDigest(), new Provider("BC"));
-                signer.signDetached(digest, pks, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
+                pdfSigner.signDetached(digest, pks, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
 
                 System.out.println("PDF firmado exitosamente.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error al firmar el PDF", e);
         }
     }
 }
