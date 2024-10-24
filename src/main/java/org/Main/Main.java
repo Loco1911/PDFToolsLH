@@ -12,16 +12,16 @@ public class Main {
     public static void main(String[] args) {
 
 
-        String keyStorePath1 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate.pfx";
+        String keyStorePath1 = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\certificate.pfx";
         String keyStorePassword1 = "Modernizacion1234%";
-        String pdfInputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas.pdf";
-        String pdfOutputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_new_2.pdf";
-        String pdfOutputPath2 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final.pdf";
+        String pdfInputPath = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas.pdf";
+        String pdfOutputPath = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_new_2.pdf";
+        String pdfOutputPath2 ="C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final.pdf";
         String signatureText = "Texto de Firma";
 
-        String keyStorePath2 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate2.pfx";
+        String keyStorePath2 = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\certificate2.pfx";
         String keyStorePassword2 = "Octavio1234";
-        String pdfOutputPath3 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_2.pdf";
+        String pdfOutputPath3 ="C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_2.pdf";
 
         try {
 
