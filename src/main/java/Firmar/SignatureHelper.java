@@ -69,48 +69,50 @@ public class SignatureHelper {
     }
 
     public void signPdf(String src, String dest, String reason, String location, String contact) throws Exception {
-        // Configuración de lectura y escritura del PDF
+        // Validación de entradas
+        if (src == null || dest == null || reason == null || location == null || contact == null) {
+            throw new IllegalArgumentException("Todos los parámetros deben ser no nulos.");
+        }
+
         PdfReader reader = new PdfReader(src);
-        PdfWriter writer = new PdfWriter(dest);
-        PdfSigner signer = new PdfSigner(reader, writer, new StampingProperties().useAppendMode());
-        PdfDocument pdfDoc = new PdfDocument(new PdfReader(src));
+             PdfWriter writer = new PdfWriter(dest);
+             PdfSigner signer = new PdfSigner(reader, writer, new StampingProperties().useAppendMode());
 
-        // Obtener el formulario y el número de firmas previas
-        PdfAcroForm acroForm = PdfAcroForm.getAcroForm(signer.getDocument(), true);
-        int firmasPrevias = acroForm.getAllFormFields().size();
+            // Obtener el formulario y el número de firmas previas
+            PdfAcroForm acroForm = PdfAcroForm.getAcroForm(signer.getDocument(), true);
+            int firmasPrevias = acroForm.getAllFormFields().size();
 
-        // Definir el rectángulo de la firma basado en el número de firmas previas
-        Rectangle signatureRect = getSignatureRectangle(firmasPrevias);
+            // Definir el rectángulo de la firma
+            Rectangle signatureRect = getSignatureRectangle(firmasPrevias);
 
-        // Crear el campo de firma utilizando makeFormField
-        PdfSignatureFormField sigField = PdfFormField.makeFormField(, signer.getDocument(),signatureRect);
-        PdfSignatureFormField sigField = PdfFormField.makeFormField(, signer.getDocument(),signatureRect);
-        sigField.setFieldName("sig_" + (firmasPrevias + 1));
-        acroForm.addField(sigField);
+            // Crear la apariencia de la firma utilizando un PdfFormXObject
+            PdfFormXObject n2 = new PdfFormXObject(signatureRect);
+            PdfCanvas canvas = new PdfCanvas(n2, signer.getDocument());
 
-        // Crear la apariencia de la firma utilizando un PdfFormXObject
-        PdfFormXObject n2 = new PdfFormXObject(signatureRect);
-        PdfCanvas canvas = new PdfCanvas(n2, signer.getDocument());
-        X509Certificate cert = (X509Certificate) certChain[0];
-        String subject = cert.getSubjectX500Principal().getName();
-        drawTextInRectangle(canvas, subject, signatureRect);
+            // Aquí puedes personalizar la apariencia de la firma
+            X509Certificate cert = (X509Certificate) certChain[0];
+            String subject = cert.getSubjectX500Principal().getName();
+            drawTextInRectangle(canvas, subject, signatureRect);
 
-        // Añadir apariencia personalizada a la firma
-        sigField.getWidgets().get(0).setNormalAppearance(n2.getPdfObject());
+            // Crear el campo de firma utilizando makeFormField
+            PdfSignatureFormField sigField = (PdfSignatureFormField) PdfFormField.makeFormField(n2.getPdfObject(), signer.getDocument());
+            sigField.setFieldName("sig_" + (firmasPrevias + 1));
+            acroForm.addField(sigField);
 
-        // Configurar detalles de la firma
-        signer.setFieldName("sig_" + (firmasPrevias + 1));
-        signer.setReason(reason);
-        signer.setContact(contact);
-        signer.setLocation(location);
-        signer.setCertificationLevel(PdfSigner.NOT_CERTIFIED);
+            // Configurar detalles de la firma
+            signer.setFieldName("sig_" + (firmasPrevias + 1));
+            signer.setReason(reason);
+            signer.setContact(contact);
+            signer.setLocation(location);
+            signer.setCertificationLevel(PdfSigner.NOT_CERTIFIED);
 
-        // Firmar PDF con certificado
-        IExternalSignature pks = new PrivateKeySignature(privateKey, signatureAlgorithm, "BC");
-        IExternalDigest digest = new BouncyCastleDigest();
-        signer.signDetached(digest, pks, certChain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
+            // Firmar PDF con certificado
+            IExternalSignature pks = new PrivateKeySignature(privateKey, signatureAlgorithm, "BC");
+            IExternalDigest digest = new BouncyCastleDigest();
+            signer.signDetached(digest, pks, certChain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
 
-        logger.log(Level.INFO, "Firma realizada con éxito en: " + dest);
+            logger.log(Level.INFO, "Firma realizada con éxito en: " + dest);
+
     }
 
     private void drawTextInRectangle(PdfCanvas canvas, String text, Rectangle rect) {

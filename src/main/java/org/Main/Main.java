@@ -1,5 +1,6 @@
 package org.Main;
 
+import Firmar.PdfSignerService;
 import Firmar.SignatureHelper;
 
 import java.util.logging.Level;
@@ -14,7 +15,7 @@ public class Main {
         String keyStorePath1 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate.pfx";
         String keyStorePassword1 = "Modernizacion1234%";
         String pdfInputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas.pdf";
-        String pdfOutputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed.pdf";
+        String pdfOutputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_new_2.pdf";
         String pdfOutputPath2 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final.pdf";
         String signatureText = "Texto de Firma";
 
@@ -23,13 +24,16 @@ public class Main {
         String pdfOutputPath3 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_2.pdf";
 
         try {
-            SignatureHelper helper = new SignatureHelper();
+
+            PdfSignerService signer = new PdfSignerService(pdfInputPath, pdfOutputPath, keyStorePath1, keyStorePassword1);
+            signer.signPdf();
+            /*SignatureHelper helper = new SignatureHelper();
             SignatureHelper.agregarLineas(pdfInputPath, pdfOutputPath);
             helper.loadKeyStore(keyStorePath1, keyStorePassword1);
             helper.signPdf(pdfOutputPath, pdfOutputPath2,  "Firmado electrónicamente por", "Modernización Institucional", "Renzo Sparta");
 
             helper.loadKeyStore(keyStorePath2, keyStorePassword2);
-            helper.signPdf(pdfOutputPath2, pdfOutputPath3, "Firmado electrónicamente por", "Modernización Institucional", "Octavio Díaz");
+            helper.signPdf(pdfOutputPath2, pdfOutputPath3, "Firmado electrónicamente por", "Modernización Institucional", "Octavio Díaz");*/
 
             logger.log(Level.INFO, "PDF firmado correctamente.");
         } catch (Exception e) {
