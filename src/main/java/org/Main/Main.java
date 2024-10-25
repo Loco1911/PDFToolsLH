@@ -16,6 +16,7 @@ public class Main {
         String keyStorePassword1 = "Modernizacion1234%";
         String pdfInputPath = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas.pdf";
         String pdfOutputPath = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_new_2.pdf";
+        String pdfOutputLines = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_lines_2.pdf";
         String pdfOutputPath2 ="C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final.pdf";
         String signatureText = "Texto de Firma";
 
@@ -25,8 +26,9 @@ public class Main {
 
         try {
 
-            PdfSignerService signer = new PdfSignerService(pdfInputPath, pdfOutputPath, keyStorePath1, keyStorePassword1);
-            signer.signPdf();
+            PdfSignerService signer = new PdfSignerService(pdfInputPath ,pdfOutputLines, pdfOutputPath, keyStorePath1, keyStorePassword1);
+            signer.agregarLineas();
+            signer.signPdfNextPosition();
             /*SignatureHelper helper = new SignatureHelper();
             SignatureHelper.agregarLineas(pdfInputPath, pdfOutputPath);
             helper.loadKeyStore(keyStorePath1, keyStorePassword1);
