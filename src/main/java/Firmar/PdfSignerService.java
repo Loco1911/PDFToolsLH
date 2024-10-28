@@ -34,6 +34,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Servicio para firmar documentos PDF con soporte para caracteres especiales y acentos.
  */
@@ -48,18 +50,18 @@ public class PdfSignerService {
     private static final float FIRMA_X_INICIAL = 90; // Posición X inicial
     private static final float FIRMA_Y_INICIAL = 200; // Posición Y inicial
 
-    private final String src;
-    private final String dest;
-    private final String pathToPfx;
-    private final String password;
-    private final String lines;
+//    private final String src;
+//    private final String dest;
+//    private final String pathToPfx;
+//    private final String password;
+//    private final String lines;
 
-    public PdfSignerService(String src, String lines, String dest, String pathToPfx, String password) {
-        this.src = src;
-        this.dest = dest;
-        this.pathToPfx = pathToPfx;
-        this.password = password;
-        this.lines = lines;
+    public PdfSignerService() {
+//        this.src = src;
+//        this.dest = dest;
+//        this.pathToPfx = pathToPfx;
+//        this.password = password;
+//        this.lines = lines;
     }
 
     /*public void signPdf() throws Exception {
@@ -144,9 +146,9 @@ public class PdfSignerService {
     }*/
 
 
-    public void agregarLineas() {
-        try (PdfReader reader = new PdfReader(this.src);
-             PdfWriter writer = new PdfWriter(this.lines);
+    public void agregarLineas(String src, String dest) {
+        try (PdfReader reader = new PdfReader(src);
+             PdfWriter writer = new PdfWriter(dest);
              PdfDocument pdfDoc = new PdfDocument(reader, writer)) {
 
             PdfPage lastPage = pdfDoc.getPage(pdfDoc.getNumberOfPages());
@@ -204,12 +206,12 @@ public class PdfSignerService {
         }
     }
 
-    public void signPdfNextPosition() throws Exception {
+    public void signPdfNextPosition(String src, String dest, String pfx, String pfxPassword) throws Exception {
         logger.info("Iniciando el proceso de firma del PDF en la última página...");
 
         Security.addProvider(new BouncyCastleProvider());
         KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(new FileInputStream(pathToPfx), password.toCharArray());
+        ks.load(new FileInputStream(pfx), pfxPassword.toCharArray());
 
         String alias = "";
         Enumeration<String> aliases = ks.aliases();
@@ -220,11 +222,11 @@ public class PdfSignerService {
             }
         }
 
-        PrivateKey pk = (PrivateKey) ks.getKey(alias, password.toCharArray());
+        PrivateKey pk = (PrivateKey) ks.getKey(alias, pfxPassword.toCharArray());
         Certificate[] chain = ks.getCertificateChain(alias);
 
         X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
-        String issuer = cert.getIssuerX500Principal().getName();
+        String issuer = cert.getIssuerX500Principal().getName(), StandardCharsets.UTF_8;
         logger.info("Emisor del certificado obtenido: " + issuer);
 
         Map<String, String> fields = Stream.of(issuer.split(","))
@@ -239,7 +241,7 @@ public class PdfSignerService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(FORMATO_FECHA);
         String fechaFirma = now.format(formatter);
 
-        String formattedIssuer = new String(String.format("Firmado electrónicamente por :%n%s%n%s%n%s%n%s, %s, %s%n%s",
+        String formattedIssuer = new String(String.format("Firmado electrónicamente por:%n%s%n%s%n%s%n%s, %s, %s%n%s",
                 fields.getOrDefault("CN", ""),
                 fields.getOrDefault("OU", ""),
                 fields.getOrDefault("O", ""),
@@ -248,7 +250,7 @@ public class PdfSignerService {
                 fields.getOrDefault("C", ""),
                 fechaFirma).getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
 
-        try (PdfReader reader = new PdfReader(lines);
+        try (PdfReader reader = new PdfReader(src);
              PdfWriter writer = new PdfWriter(dest)) {
 
             StampingProperties stampingProperties = new StampingProperties();
@@ -257,41 +259,64 @@ public class PdfSignerService {
             PdfDocument pdfDoc = signer.getDocument();
             int lastPageNumber = pdfDoc.getNumberOfPages();
 
-            // Configurar la apariencia de la firma con fuente que soporte acentos
-            PdfSignatureAppearance appearance = signer.getSignatureAppearance();
-            PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA, StandardCharsets.UTF_8.name());
-            appearance.setLayer2Font(font);
+            // Obtener el conteo de firmas existentes
+            PdfAcroForm acroForm = PdfAcroForm.getAcroForm(signer.getDocument(), true);
+            int signatureCount = acroForm.getAllFormFields().size();
+
+
+
+
+//            int signatureCount = getSignatureCount(pdfDoc);
+            logger.info("Número de firmas existentes en el documento: " + signatureCount);
+
 
             // Determinar la posición de la firma
-            int signatureCount = getSignatureCount(pdfDoc);
             float xPosition = FIRMA_X_INICIAL;
             float yPosition = FIRMA_Y_INICIAL;
 
-            if (signatureCount == 1) {
-                // No hacer nada, la posición es la inicial
+            // Ajustar la posición según el número de firmas
+            if (signatureCount == 0) {
+                // Posición inicial
+                signer.setFieldName("sig_1");
+                logger.info("Colocando la primera firma en la posición inicial.");
+            } else if (signatureCount == 1) {
+                signer.setFieldName("sig_2");
+                xPosition += FIRMA_ANCHO + ESPACIO_ENTRE_LINEAS;
+                logger.info("Colocando la segunda firma a la derecha de la primera.");
             } else if (signatureCount == 2) {
-                xPosition += FIRMA_ANCHO + ESPACIO_ENTRE_LINEAS;
+                signer.setFieldName("sig_3");
+                yPosition -= ESPACIO_ENTRE_FILAS;
+                // Reiniciar X para nueva fila
+                logger.info("Colocando la tercera firma en la segunda fila.");
             } else if (signatureCount == 3) {
-                xPosition = FIRMA_X_INICIAL;
+                signer.setFieldName("sig_4");
                 yPosition -= ESPACIO_ENTRE_FILAS;
-            } else if (signatureCount == 4) {
                 xPosition += FIRMA_ANCHO + ESPACIO_ENTRE_LINEAS;
-                yPosition -= ESPACIO_ENTRE_FILAS;
-            } else if (signatureCount == 5) {
-                xPosition = FIRMA_X_INICIAL;
-                yPosition -= 2 * ESPACIO_ENTRE_FILAS;
+                logger.info("Colocando la cuarta firma a la derecha de la tercera.");
+            } else if (signatureCount == 4) {
+                signer.setFieldName("sig_5");
+                yPosition -= ESPACIO_ENTRE_FILAS * 2;
+                xPosition += 90 + ESPACIO_ENTRE_LINEAS;
+                // Reiniciar X para nueva fila
+                logger.info("Colocando la quinta firma en la tercera fila.");
             }
 
             signer.setPageNumber(lastPageNumber);
             Rectangle rect = new Rectangle(xPosition, yPosition, FIRMA_ANCHO, FIRMA_ALTO);
             signer.setPageRect(rect);
 
+            String sign_name = signer.getFieldName();
+            logger.info("Nombre de firma: " + sign_name);
+
             // Configurar el texto de la firma
+            PdfSignatureAppearance appearance = signer.getSignatureAppearance();
+            PdfFont font = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN, StandardCharsets.UTF_8.name());
+            appearance.setLayer2Font(font);
             appearance.setLayer2Text(formattedIssuer);
-            signer.setFieldName(NOMBRE_CAMPO_FIRMA);
+//            signer.setFieldName(NOMBRE_CAMPO_FIRMA);
 
             // Metadatos de la firma
-            signer.setReason("Firma digital");
+            signer.setReason("");
             signer.setLocation("");
             signer.setContact("");
 
@@ -304,21 +329,22 @@ public class PdfSignerService {
         }
     }
 
-    private int getSignatureCount(PdfDocument pdfDoc) {
-        int signatureCount = 0;
-
-        // Obtener el AcroForm del documento
-        PdfAcroForm acroForm = PdfAcroForm.getAcroForm(pdfDoc, false);
-        if (acroForm != null) {
-            // Iterar a través de todos los campos del formulario
-            for (Map.Entry<String, PdfFormField> entry : acroForm.getAllFormFields().entrySet()) {
-                PdfFormField field = entry.getValue();
-                // Comprobar si el campo es un campo de firma
-                if (field.getFieldName().toString().toLowerCase().contains("sig")) {
-                    signatureCount++;
-                }
-            }
-        }
-        return signatureCount;
-    }
+//    private int getSignatureCount(PdfDocument pdfDoc) {
+//        int signatureCount = 0;
+//
+//        // Obtener el AcroForm del documento
+//        PdfAcroForm acroForm = PdfAcroForm.getAcroForm(pdfDoc, false);
+//        if (acroForm != null) {
+//            // Iterar a través de todos los campos del formulario
+//            for (Map.Entry<String, PdfFormField> entry : acroForm.getAllFormFields().entrySet()) {
+//                PdfFormField field = entry.getValue();
+//                // Comprobar si el campo es un campo de firma
+//                if (field.getFieldName() != null && field.getFieldName().toString().toLowerCase().contains("sig")) {
+//                    signatureCount++;
+//                }
+//            }
+//        }
+//        logger.info("Total de campos de firma encontrados: " + signatureCount);
+//        return signatureCount;
+//    }
 }

@@ -12,23 +12,44 @@ public class Main {
     public static void main(String[] args) {
 
 
-        String keyStorePath1 = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\certificate.pfx";
-        String keyStorePassword1 = "Modernizacion1234%";
-        String pdfInputPath = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas.pdf";
-        String pdfOutputPath = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_new_2.pdf";
-        String pdfOutputLines = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_lines_2.pdf";
-        String pdfOutputPath2 ="C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final.pdf";
-        String signatureText = "Texto de Firma";
 
-        String keyStorePath2 = "C:\\Users\\Soporte\\Documents\\Pasantias LH\\certificate2.pfx";
-        String keyStorePassword2 = "Octavio1234";
-        String pdfOutputPath3 ="C:\\Users\\Soporte\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_2.pdf";
+        String pdfInputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas.pdf";
+        String pdfOutputPath = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_new_2.pdf";
+        String pdfOutputLines = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_signed_lines_2.pdf";
+        String pdfOutputPath2 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final.pdf";
+
+
+        String keyStorePath1 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate.pfx";
+        String keyStorePassword1 = "Modernizacion1234%";
+
+        String keyStorePath2 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate3.pfx";
+        String keyStorePassword2 = "Pamela1234";
+        String pdfOutputPath3 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_2.pdf";
+
+        String keyStorePath3 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate2.pfx";
+        String keyStorePassword3 = "Octavio1234";
+        String pdfOutputPath4 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_3.pdf";
+
+        String keyStorePath4 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate4.pfx";
+        String keyStorePassword4 = "Valentina1234";
+        String pdfOutputPath5 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_4.pdf";
+
+        String keyStorePath5 = "C:\\Users\\PC1293\\Documents\\Pasantias LH\\certificate5.pfx";
+        String keyStorePassword5 = "Marcelo1234";
+        String pdfOutputPath6 ="C:\\Users\\PC1293\\Documents\\Pasantias LH\\contrato_de_prueba_paginas_llenas_final_5.pdf";
 
         try {
+            PdfSignerService signer = new PdfSignerService();
+            signer.agregarLineas(pdfInputPath, pdfOutputLines);
+            signer.signPdfNextPosition(pdfOutputLines, pdfOutputPath, keyStorePath1, keyStorePassword1);
+            signer.signPdfNextPosition(pdfOutputPath, pdfOutputPath2, keyStorePath2, keyStorePassword2);
+            signer.signPdfNextPosition(pdfOutputPath2, pdfOutputPath4, keyStorePath3, keyStorePassword3);
+            signer.signPdfNextPosition(pdfOutputPath4, pdfOutputPath5, keyStorePath4, keyStorePassword4);
+            signer.signPdfNextPosition(pdfOutputPath5, pdfOutputPath6, keyStorePath5, keyStorePassword5);
 
-            PdfSignerService signer = new PdfSignerService(pdfInputPath ,pdfOutputLines, pdfOutputPath, keyStorePath1, keyStorePassword1);
-            signer.agregarLineas();
-            signer.signPdfNextPosition();
+            //PdfSignerService signer2 = new PdfSignerService();
+            //signer2.signPdfNextPosition(pdfOutputPath, pdfOutputPath, keyStorePath2, keyStorePassword2);
+
             /*SignatureHelper helper = new SignatureHelper();
             SignatureHelper.agregarLineas(pdfInputPath, pdfOutputPath);
             helper.loadKeyStore(keyStorePath1, keyStorePassword1);
