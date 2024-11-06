@@ -1,7 +1,6 @@
 package org.Main;
 
 import Firmar.PdfSignerService;
-import Firmar.SignatureHelper;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

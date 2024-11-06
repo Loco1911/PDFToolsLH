@@ -18,8 +18,8 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SignatureHelper2 {
-    private static final Logger logger = Logger.getLogger(SignatureHelper2.class.getName());
+public class SignatureHelperOld2 {
+    private static final Logger logger = Logger.getLogger(SignatureHelperOld2.class.getName());
 
     private PrivateKey privateKey;
     private Certificate[] certChain;

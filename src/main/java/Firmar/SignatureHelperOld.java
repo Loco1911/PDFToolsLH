@@ -23,8 +23,8 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SignatureHelper {
-    private static final Logger logger = Logger.getLogger(SignatureHelper.class.getName());
+public class SignatureHelperOld {
+    private static final Logger logger = Logger.getLogger(SignatureHelperOld.class.getName());
     private PrivateKey privateKey;
     private Certificate[] certChain;
     private String signatureAlgorithm = DigestAlgorithms.SHA256; // Definir por defecto

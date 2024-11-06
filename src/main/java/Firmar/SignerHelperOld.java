@@ -17,8 +17,8 @@ import java.security.cert.Certificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SignerHelper {
-    private static final Logger logger = Logger.getLogger(SignerHelper.class.getName());
+public class SignerHelperOld {
+    private static final Logger logger = Logger.getLogger(SignerHelperOld.class.getName());
 
     private static Rectangle fourthRectPosition;
 
