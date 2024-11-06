@@ -206,13 +206,16 @@ public class PdfSignerService {
         }
     }
 
+    //Investigar Foramtos p12
     public void signPdfNextPosition(String src, String dest, String pfx, String pfxPassword) throws Exception {
         logger.info("Iniciando el proceso de firma del PDF en la última página...");
 
+        // Inverstigar BouncyCastle
         Security.addProvider(new BouncyCastleProvider());
         KeyStore ks = KeyStore.getInstance("PKCS12");
         ks.load(new FileInputStream(pfx), pfxPassword.toCharArray());
 
+        //Investigar con más de un alias
         String alias = "";
         Enumeration<String> aliases = ks.aliases();
         while (aliases.hasMoreElements()) {
@@ -223,6 +226,7 @@ public class PdfSignerService {
         }
 
         PrivateKey pk = (PrivateKey) ks.getKey(alias, pfxPassword.toCharArray());
+        // Investigar Charset
         Certificate[] chain = ks.getCertificateChain(alias);
 
         X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
@@ -240,7 +244,8 @@ public class PdfSignerService {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(FORMATO_FECHA);
         String fechaFirma = now.format(formatter);
-
+// No tocar
+        // Investigar Charset
         String formattedIssuer = new String(String.format("Firmado electrónicamente por:%n%s%n%s%n%s%n%s, %s, %s%n%s",
                 fields.getOrDefault("CN", ""),
                 fields.getOrDefault("OU", ""),
@@ -310,7 +315,7 @@ public class PdfSignerService {
 
             // Configurar el texto de la firma
             PdfSignatureAppearance appearance = signer.getSignatureAppearance();
-            PdfFont font = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN, StandardCharsets.UTF_8.name());
+            PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA, StandardCharsets.UTF_8.name());
             appearance.setLayer2Font(font);
             appearance.setLayer2Text(formattedIssuer);
 //            signer.setFieldName(NOMBRE_CAMPO_FIRMA);
@@ -321,6 +326,7 @@ public class PdfSignerService {
             signer.setContact("");
 
             // Realizar la firma digital
+            // Investigar otros algoritmon
             IExternalSignature pks = new PrivateKeySignature(pk, DigestAlgorithms.SHA256, "BC");
             BouncyCastleDigest digest = new BouncyCastleDigest();
             signer.signDetached(digest, pks, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
